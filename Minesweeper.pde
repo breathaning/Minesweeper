@@ -163,7 +163,7 @@ public class TileButton
             fill(128, 0, 0);
           }
           textSize(14);
-          text(String.valueOf(value), x + width * 0.5, y + height * 0.5);
+          text(value, x + width * 0.5, y + height * 0.5);
         }
       }
     }

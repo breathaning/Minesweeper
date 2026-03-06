@@ -33,10 +33,10 @@ public void setup (){
 public void draw (){
     background( 0 );
     if (gameEnd) {
-      String text = win ? "You Win! :)" : "You Lose :(";
+      String displayText = win ? "You Win! :)" : "You Lose :(";
       textSize(25);
       fill(100, 100, 100);
-      text(text, width / 2, height / 2);
+      text(displayText, width / 2, height / 2);
     }
 }
 

@@ -161,6 +161,12 @@ public class TileButton
             fill(0, 0, 128);
           } else if (value == 5) {
             fill(128, 0, 0);
+          } else if (value == 6) {
+            fill(0, 128, 128);
+          } else if (value == 7) {
+            fill(0, 0, 0);
+          } else {
+            fill(128, 128, 128);
           }
           textSize(14);
           text(value, x + width * 0.5, y + height * 0.5);

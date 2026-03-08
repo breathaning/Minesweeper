@@ -14,7 +14,9 @@ private int[][] adjacent = {
 private int mineCount = 75;
 private RestartButton restartButton;
 
+private boolean gameStarted = false;
 private boolean gameEnd = false;
+private int gameEndTime = 0.0;
 private boolean win = false;
   
 public void setup (){
@@ -27,7 +29,6 @@ public void setup (){
         buttons[iy][ix] = new TileButton(ix, iy, buttonSize - 1, buttonSize - 1);
       }
     }
-    newGame();
     restartButton = new RestartButton(width / 2, height * 0.75, 100, 50);
 }
 public void draw (){
@@ -40,7 +41,21 @@ public void draw (){
     }
 }
 
-public void newGame() {
+public void endGame() {
+  gameStarted = false;
+  gameEnd = true;
+  gameEndTime = millis();
+}
+
+public void isAdjacent(int x1, int y1, int x2, int y2) {
+  for (int i = 0; i < adjacent.length; i++) {
+    if (x1 + adjacent[i][0] != x2 || y1 + adjacent[i][1] != y2) { continue; }
+    return true;
+  }
+  return false;
+}
+
+public void newGame(int startX, int startY) {
   gameEnd = false;
   for (int iy = 0; iy < buttons.length; iy++) {
       for (int ix = 0; ix < buttons[iy].length; ix++) {
@@ -48,9 +63,11 @@ public void newGame() {
       }
   }
   int mines = 0;
-  while (mines < mineCount) {
+  int minimumMineCount = buttons.length * buttons[0].length - 8;
+  while (mines < Math.min(mineCount, minimumMineCount)) {
     int iy = (int)(Math.random() * buttons.length);
     int ix = (int)(Math.random() * buttons[iy].length);
+    if (isAdjacent(startX, startY, ix, iy) || (startX == ix && startY == iy)) { continue; }
     if (buttons[iy][ix].getValue() == 9) { continue; }
     buttons[iy][ix].setValue(9);
     mines++;
@@ -82,7 +99,7 @@ public class RestartButton {
   }
   
   public void draw() {
-    if (!gameEnd) { return; }
+    if (!isVisible()) { return; }
     fill(255, 255, 200);
     noStroke();
     rect(x, y, width, height);
@@ -91,7 +108,12 @@ public class RestartButton {
   }
   
   public void mouseReleased() {
+    if (!isVisible()) { return; }
     newGame();
+  }
+
+  private boolean isVisible() {
+    return gameEnd && millis() - gameEndTime > 1000;
   }
 }
 public class TileButton
@@ -119,6 +141,10 @@ public class TileButton
     }
     public void mouseReleased () {
       if (gameEnd) { return; }
+      if (!gameStarted) {
+        gameStarted = true;
+        newGame(ix, iy);
+      }
       if (mouseButton == LEFT && !isFlagged()) {
         if (isOpen()) {
           chordTile();
@@ -126,7 +152,7 @@ public class TileButton
           openTile();
         }
         checkGameEnd();
-      } else if (mouseButton == RIGHT) {
+      } else if (mouseButton == RIGHT && !isOpen()) {
         flagTile();
       }
     }
@@ -234,10 +260,10 @@ public class TileButton
       }
       
       if (lose) {
-        gameEnd = true;
+        endGame();
         win = false;
       } else if (openCount == buttons.length * buttons[0].length - mineCount) {
-        gameEnd = true;
+        endGame();
         win = true;
       }
     }
